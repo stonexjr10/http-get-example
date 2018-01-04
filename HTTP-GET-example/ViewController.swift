@@ -22,10 +22,10 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
-    @IBAction func sendButtonTapped(sender: AnyObject) {
+    @IBAction func sendButtonTapped(_ sender: Any) {
         let userNameValue = userNameTextField.text
         
-        if isStringEmpty(userNameValue!) == true
+        if isStringEmpty(string: userNameValue!) == true
         {
             return
         }
@@ -33,13 +33,18 @@ class ViewController: UIViewController {
         // Send HTTP GET Request 
   
         
-        let scriptUrl = "http://swiftdeveloperblog.com/my-http-get-example-script/"
+//        let scriptUrl = "http://swiftdeveloperblog.com/my-http-get-example-script/"
+        let scriptUrl = "https://prospero.uatproxy.cdlis.co.uk/prospero/DocumentUpload.ajax"
         let urlWithParams = scriptUrl + "?userName=\(userNameValue!)"
-        let myUrl = NSURL(string: urlWithParams);
+        let myUrl = URL(string: urlWithParams);
         
-        let request = NSMutableURLRequest(URL:myUrl!);
-        request.HTTPMethod = "GET"
-        
+        if myUrl == nil {
+            print("Invalid url: \"\(urlWithParams)\"")
+            return
+        }
+        var request = URLRequest(url: myUrl!);
+        request.httpMethod = "GET"
+
         // Add Basic Authorization
         /*
         let username = "myUserName"
@@ -53,30 +58,31 @@ class ViewController: UIViewController {
         // Or add Token value
         //request.addValue("Token token=884288bae150b9f2f68d8dc3a932071d", forHTTPHeaderField: "Authorization")
         
-        let task = NSURLSession.sharedSession().dataTaskWithRequest(request) {
+        let task = URLSession.shared.dataTask(with: request) {
             data, response, error in
             
             // Check for error
             if error != nil
             {
-                print("error=\(error)")
+                print("error=\(String(describing: error))")
                 return
             }
             
             // Print out response string
-            let responseString = NSString(data: data!, encoding: NSUTF8StringEncoding)
-            print("responseString = \(responseString)")
+            let responseString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
+            print("responseString = \(String(describing: responseString))")
+            print("\n\n")
             
             
             // Convert server json response to NSDictionary
             do {
-                if let convertedJsonIntoDict = try NSJSONSerialization.JSONObjectWithData(data!, options: []) as? NSDictionary {
+                if let convertedJsonIntoDict = try JSONSerialization.jsonObject(with: data!, options: []) as? NSDictionary {
                     
                     // Print out dictionary
                     print(convertedJsonIntoDict)
                     
-                    let firstNameValue = convertedJsonIntoDict["userName"] as? String
-                    print(firstNameValue!)
+                    let statusCode = convertedJsonIntoDict["success"] as? NSNumber
+                    print("statusCode=\(statusCode!)")
                     
                 }
             } catch let error as NSError {
@@ -90,28 +96,12 @@ class ViewController: UIViewController {
         
     }
     
-    
-    func isStringEmpty(var stringValue:String) -> Bool
+    func isStringEmpty(string stringValue: String) -> Bool
     {
-        var returnValue = false
+        var stringValue = stringValue
+        stringValue = stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
     
-        if stringValue.isEmpty  == true
-        {
-            returnValue = true
-            return returnValue
-        }
-        
-        stringValue = stringValue.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
-        
-        if(stringValue.isEmpty == true)
-        {
-            returnValue = true
-            return returnValue
- 
-        }
-    
-          return returnValue
-        
+        return stringValue.isEmpty
     }
 
 }
