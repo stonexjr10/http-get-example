@@ -46,15 +46,13 @@ class ViewController: UIViewController {
         request.httpMethod = "GET"
 
         // Add Basic Authorization
-        /*
         let username = "myUserName"
         let password = "myPassword"
-        let loginString = NSString(format: "%@:%@", username, password)
-        let loginData: NSData = loginString.dataUsingEncoding(NSUTF8StringEncoding)!
-        let base64LoginString = loginData.base64EncodedStringWithOptions(NSDataBase64EncodingOptions())
-        request.setValue(base64LoginString, forHTTPHeaderField: "Authorization")
-        */
-        
+        let loginString = String(format: "%@:%@", username, password)
+        let loginData: Data = loginString.data(using: .utf8)!
+        let base64LoginString = loginData.base64EncodedString()
+        request.setValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
+
         // Or add Token value
         //request.addValue("Token token=884288bae150b9f2f68d8dc3a932071d", forHTTPHeaderField: "Authorization")
         
